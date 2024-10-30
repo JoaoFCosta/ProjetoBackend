@@ -5,7 +5,7 @@
     ViewData["Title"] = "Entrar";
 }
 
-<h1 class="text-center">@ViewData["Title"]</h1>
+<h1 class="text-center fw-lighter">@ViewData["Title"]</h1>
 <div class="row justify-content-center align-items-center">
     <div class="col-md-4">
         <section>
@@ -42,13 +42,13 @@
                 </div>
 
                 <div>
-                    <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-warning">Entrar</button>
+                    <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-info">Entrar</button>
                 </div>
                 <hr />
                 <div>
                     <h3 class="text-center mt-6">Ainda não possui uma conta?</h3>
                     <p class="text-center">
-                        <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" class="w-100 btn btn-lg btn-warning mt-6">Registre-se</a>
+                        <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" class="w-100 btn btn-lg btn-primary mt-6">Registre-se</a>
                     </p>
                 </div>
             </form>

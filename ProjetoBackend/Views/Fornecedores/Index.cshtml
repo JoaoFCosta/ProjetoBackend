@@ -1,53 +1,69 @@
 ﻿@model IEnumerable<ProjetoBackend.Models.Fornecedor>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Fornecedores";
 }
 
-<h1>Index</h1>
+<h1 class="fw-lighter">Fornecedores</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Nome)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Celular)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CnpjCpf)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Nome)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Celular)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CnpjCpf)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.FornecedorId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.FornecedorId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.FornecedorId">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="row">
+    <div class="col-12 col-md-4">
+        <p>
+            <a asp-action="Create" class="btn btn-lg btn-secondary">Adicionar</a>
+        </p>
+    </div>
+
+    <div class="col-12 col-md-4"></div>
+
+    <div class="col-12 col-md-4">
+        <form asp-action="Search" method="get">
+            <input class="form-control-sm border-primary" type="text" name="nome" placeholder="Buscar fornecedor..." />
+            <button type="submit" class="btn btn-lg btn-secondary"><ion-icon name="search"></ion-icon>Buscar</button>
+        </form>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-bordered border-info table-striped table-hover">
+        <thead>
+            <tr>
+                <th class="bg-primary text-light">
+                    @Html.DisplayNameFor(model => model.Nome)
+                </th>
+                <th class="bg-primary text-light">
+                    @Html.DisplayNameFor(model => model.Email)
+                </th>
+                <th class="bg-primary text-light">
+                    @Html.DisplayNameFor(model => model.Celular)
+                </th>
+                <th class="bg-primary text-light">
+                    @Html.DisplayNameFor(model => model.CnpjCpf)
+                </th>
+                <th class="bg-primary text-light"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Nome)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Email)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Celular)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CnpjCpf)
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.FornecedorId" class="btn btn-info">Editar</a>
+                        <a asp-action="Delete" asp-route-id="@item.FornecedorId" class="btn btn-danger">Deletar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

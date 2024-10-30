@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using ProjetoBackend.Models;
 
 namespace ProjetoBackend.Controllers
 {
+    [Authorize]
     public class ProdutosController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -24,6 +26,17 @@ namespace ProjetoBackend.Controllers
         {
             var produtos = await _context.Produtos.ToListAsync();
             return View(produtos.OrderBy(p => p.Nome));
+        }
+
+        public async Task<IActionResult> Search(string nome)
+        {
+            if (string.IsNullOrEmpty(nome))
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            var produtos = await _context.Produtos.Where(p => p.Nome.Contains(nome)).ToListAsync();
+            return View("Index", produtos.OrderBy(p => p.Nome));
         }
 
         // GET: Produtos/Details/5
