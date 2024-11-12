@@ -1,41 +1,57 @@
 ﻿@model IEnumerable<ProjetoBackend.Models.Servico>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Serviços";
 }
 
-<h1>Index</h1>
+<h1 class="fw-lighter">Serviços</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Nome)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ValorServico)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Nome)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ValorServico)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ServicoId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ServicoId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ServicoId">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="row">
+    <div class="col-12 col-md-4">
+        <p>
+            <a asp-action="Create" class="btn btn-lg btn-secondary">Adicionar</a>
+        </p>
+    </div>
+
+    <div class="col-12 col-md-4"></div>
+
+    <div class="col-12 col-md-4">
+        <form asp-action="Search" method="get">
+            <input class="form-control-sm border-primary" type="text" name="nome" placeholder="Buscar serviço..." />
+            <button type="submit" class="btn btn-lg btn-secondary"><ion-icon name="search"></ion-icon>Buscar</button>
+        </form>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-hover table-striped table-bordered border-info">
+        <thead>
+            <tr>
+                <th class="bg-primary text-light">
+                    @Html.DisplayNameFor(model => model.Nome)
+                </th>
+                <th class="bg-primary text-light">
+                    @Html.DisplayNameFor(model => model.ValorServico)
+                </th>
+                <th class="bg-primary"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Nome)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ValorServico)
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.ServicoId" class="btn btn-info">Editar</a>
+                        <a asp-action="Delete" asp-route-id="@item.ServicoId" class="btn btn-danger">Deletar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

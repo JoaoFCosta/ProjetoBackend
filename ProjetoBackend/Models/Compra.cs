@@ -13,6 +13,7 @@ namespace ProjetoBackend.Models
         public Fornecedor? Fornecedor { get; set; }
         [Display(Name = "Data da Compra")]
         public DateTime? DataCompra { get; set; } = DateTime.Now;
+        [Display(Name = "Valor Total")]
         public double? ValorTotal { get; set; } = 0;
 
     }

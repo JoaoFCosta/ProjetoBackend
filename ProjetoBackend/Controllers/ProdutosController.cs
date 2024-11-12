@@ -24,7 +24,7 @@ namespace ProjetoBackend.Controllers
         // GET: Produtos
         public async Task<IActionResult> Index()
         {
-            var produtos = await _context.Produtos.ToListAsync();
+            var produtos = await _context.Produtos.Include(p => p.Categoria).ToListAsync();
             return View(produtos.OrderBy(p => p.Nome));
         }
 
@@ -74,6 +74,11 @@ namespace ProjetoBackend.Controllers
         {
             if (ModelState.IsValid)
             {
+                var categoria = await _context.Categorias.FindAsync(produto.CategoriaId);
+                if (categoria != null)
+                {
+                    produto.Categoria = categoria;
+                }
                 produto.ProdutoId = Guid.NewGuid();
                 _context.Add(produto);
                 await _context.SaveChangesAsync();
@@ -116,6 +121,11 @@ namespace ProjetoBackend.Controllers
             {
                 try
                 {
+                    var categoria = await _context.Categorias.FindAsync(produto.CategoriaId);
+                    if (categoria != null)
+                    {
+                        produto.Categoria = categoria;
+                    }
                     _context.Update(produto);
                     await _context.SaveChangesAsync();
                 }

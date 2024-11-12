@@ -28,6 +28,16 @@ namespace ProjetoBackend.Controllers
             return View(await applicationDbContext.OrderBy(v => v.NotaFiscal).ToListAsync());
         }
 
+        public async Task<IActionResult> Search(string nome)
+        {
+            if (string.IsNullOrEmpty(nome))
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            var vendas = await _context.Vendas.Where(v => v.Cliente.Nome.Contains(nome)).Include(v => v.Cliente).ToListAsync();
+            return View("Index", vendas.OrderBy(v => v.Cliente));
+        }
+
         // GET: Vendas/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {

@@ -30,6 +30,16 @@ namespace ProjetoBackend.Controllers
             return View("Index", listaItens);
         }
 
+        public async Task<IActionResult> Search(string nome)
+        {
+            if (string.IsNullOrEmpty(nome))
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            var listaItens = await _context.ItensVenda.Where(i => i.Produto.Nome.Contains(nome)).Include(v => v.Produto).ToListAsync();
+            return View("Index", listaItens.OrderBy(i => i.Produto));
+        }
+
         // GET: ItensVendas/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
@@ -84,6 +94,8 @@ namespace ProjetoBackend.Controllers
 
                 // Salvar mudança no banco de dados
                 await _context.SaveChangesAsync();
+
+                ViewData["idVendaAtual"] = itemVenda.VendaId;
 
                 return View("Index", listaItens);
 

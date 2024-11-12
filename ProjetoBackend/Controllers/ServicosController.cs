@@ -28,6 +28,17 @@ namespace ProjetoBackend.Controllers
             return View(servicos.OrderBy(s => s.Nome));
         }
 
+        public async Task<IActionResult> Search(string nome)
+        {
+            if (string.IsNullOrEmpty(nome)) // Handle empty search term
+            {
+                return RedirectToAction(nameof(Index)); // Redirect to main Index
+            }
+
+            var servicos = await _context.Servicos.Where(s => s.Nome.Contains(nome)).ToListAsync();
+            return View("Index", servicos.OrderBy(s => s.Nome)); // Reuse the existing Index view
+        }
+
         // GET: Servicos/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {

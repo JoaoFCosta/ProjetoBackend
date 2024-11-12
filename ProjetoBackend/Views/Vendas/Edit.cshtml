@@ -1,49 +1,68 @@
 ﻿@model ProjetoBackend.Models.Venda
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Editar Venda";
 }
 
-<h1>Edit</h1>
+<h1>Editar Venda</h1>
 
-<h4>Venda</h4>
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="VendaId" />
+<form asp-action="Edit">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="VendaId" />
+    <div class="row">
+        <div class="col-12 col-md-6">
             <div class="form-group">
                 <label asp-for="NotaFiscal" class="control-label"></label>
                 <input asp-for="NotaFiscal" class="form-control" />
                 <span asp-validation-for="NotaFiscal" class="text-danger"></span>
             </div>
+        </div>
+        <div class="col-12 col-md-6">
             <div class="form-group">
                 <label asp-for="ClienteId" class="control-label"></label>
                 <select asp-for="ClienteId" class="form-control" asp-items="ViewBag.ClienteId"></select>
                 <span asp-validation-for="ClienteId" class="text-danger"></span>
             </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-md-6">
             <div class="form-group">
                 <label asp-for="DataVenda" class="control-label"></label>
                 <input asp-for="DataVenda" class="form-control" />
                 <span asp-validation-for="DataVenda" class="text-danger"></span>
             </div>
+        </div>
+        <div class="col-12 col-md-6">
             <div class="form-group">
                 <label asp-for="ValorTotal" class="control-label"></label>
                 <input asp-for="ValorTotal" class="form-control" />
                 <span asp-validation-for="ValorTotal" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
-</div>
+    <div class="row">
+        <div class="col-md-4">
+            <div>
+                <a asp-action="Index" class="btn btn-danger d-flex align-items-baseline align-content-center px-5 mt-3 w-100 justify-content-center py-3">Voltar</a>
+            </div>
+        </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+        <div class="col-12 col-md-4">
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="form-group">
+                <input type="submit" value="Salvar" class="btn btn-info d-flex align-items-baseline align-content-center px-5 mt-3 w-100 justify-content-center py-3" />
+            </div>
+        </div>
+    </div>
+</form>
+
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
