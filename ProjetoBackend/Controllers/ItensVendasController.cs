@@ -30,16 +30,6 @@ namespace ProjetoBackend.Controllers
             return View("Index", listaItens);
         }
 
-        public async Task<IActionResult> Search(string nome)
-        {
-            if (string.IsNullOrEmpty(nome))
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            var listaItens = await _context.ItensVenda.Where(i => i.Produto.Nome.Contains(nome)).Include(v => v.Produto).ToListAsync();
-            return View("Index", listaItens.OrderBy(i => i.Produto));
-        }
-
         // GET: ItensVendas/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
@@ -75,34 +65,41 @@ namespace ProjetoBackend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ItemVendaId,VendaId,ProdutoId,Quantidade,ValorUnitario,ValorTotal")] ItemVenda itemVenda)
         {
-            if (ModelState.IsValid)
+            itemVenda.ItemVendaId = Guid.NewGuid();
+            _context.Add(itemVenda);
+            await _context.SaveChangesAsync();
+            //Selecionar todos os itens dessa venda e somar o valor total, e atualizar o valor total da venda
+
+            // lista de itens da venda
+            var listaItens = await _context.ItensVenda.Include(i => i.Produto).Include(i => i.Venda).Where(v => v.VendaId == itemVenda.VendaId).ToListAsync();
+
+            // Calcular o valor total da venda
+            var valorTotalVenda = listaItens.Sum(i => i.ValorTotal);
+
+            // Atualizar o valor total da venda correspondente
+            var venda = await _context.Vendas.FindAsync(itemVenda.VendaId);
+            venda.ValorTotal = valorTotalVenda;
+
+            // Salvar mudança no banco de dados
+            await _context.SaveChangesAsync();
+
+            ViewData["vendaId"] = itemVenda.VendaId;
+            ViewData["notaFiscal"] = itemVenda.Venda.NotaFiscal;
+
+            var lista = _context.ItensVenda.Where(p => p.VendaId == venda.VendaId).Include(v => v.Venda).Include(p => p.Produto).ToList().OrderBy(p => p.Venda.NotaFiscal);
+
+            if (lista.Count() == 0)
             {
-                itemVenda.ItemVendaId = Guid.NewGuid();
-                _context.Add(itemVenda);
-                await _context.SaveChangesAsync();
-                //Selecionar todos os itens dessa venda e somar o valor total, e atualizar o valor total da venda
-
-                // lista de itens da venda
-                var listaItens = await _context.ItensVenda.Include(i => i.Produto).Include(i => i.Venda).Where(v => v.VendaId == itemVenda.VendaId).ToListAsync();
-
-                // Calcular o valor total da venda
-                var valorTotalVenda = listaItens.Sum(i => i.ValorTotal);
-
-                // Atualizar o valor total da venda correspondente
-                var venda = await _context.Vendas.FindAsync(itemVenda.VendaId);
-                venda.ValorTotal = valorTotalVenda;
-
-                // Salvar mudança no banco de dados
-                await _context.SaveChangesAsync();
-
-                ViewData["idVendaAtual"] = itemVenda.VendaId;
-
-                return View("Index", listaItens);
-
+                var listaVazia = new List<ItemVenda>();
+                ViewData["listaProdutos"] = listaVazia;
             }
-            ViewData["ProdutoId"] = new SelectList(_context.Produtos, "ProdutoId", "Nome", itemVenda.ProdutoId);
-            ViewData["VendaId"] = new SelectList(_context.Vendas, "VendaId", "NotaFiscal", itemVenda.VendaId);
-            return View(itemVenda);
+            else
+            {
+                ViewData["listaProdutos"] = lista;
+            }
+
+            return RedirectToAction("Create", "Vendas");
+
         }
 
         // GET: ItensVendas/Edit/5

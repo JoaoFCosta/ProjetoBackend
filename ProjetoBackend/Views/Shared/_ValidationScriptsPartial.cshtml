@@ -17,11 +17,31 @@
                     $("#ValorTotal").val(total);
                 },
                 error: function () {
-                    alert("Erro ao calcular o preço do produto.");
+                    alert("Erro ao calcular o valor do produto.");
                 }
             });
         });
     });
+
+
+    $(document).ready(function () {
+        $("#servicoId").change(function () {
+            var id = $(this).val();
+
+            $.ajax({
+                url: '/ServicosVendas/PrecoServico',
+                data: { id: id },
+                dataType: 'json',
+                success: function (data) {
+                    $("#ValorServico").val(data);
+                },
+                error: function () {
+                    alert("Erro ao buscar o valor do servico.");
+                }
+            });
+        });
+    });
+
 
 
     function formatarTelefone(input) {

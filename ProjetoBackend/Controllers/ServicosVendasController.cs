@@ -49,10 +49,10 @@ namespace ProjetoBackend.Controllers
         }
 
         // GET: ServicosVendas/Create
-        public IActionResult Create()
+        public IActionResult Create(Guid? id)
         {
             ViewData["ServicoId"] = new SelectList(_context.Servicos, "ServicoId", "Nome");
-            ViewData["VendaId"] = new SelectList(_context.Vendas, "VendaId", "VendaId");
+            ViewData["VendaId"] = id;
             return View();
         }
 
@@ -63,16 +63,39 @@ namespace ProjetoBackend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ServicoVendaId,ServicoId,VendaId")] ServicoVenda servicoVenda)
         {
-            if (ModelState.IsValid)
+            servicoVenda.ServicoVendaId = Guid.NewGuid();
+            _context.Add(servicoVenda);
+            await _context.SaveChangesAsync();
+            //Selecionar todos os itens dessa venda e somar o valor total, e atualizar o valor total da venda
+
+            // lista de itens da venda
+            var listaServicos = await _context.ServicoVenda.Include(s => s.Servico).Include(s => s.Venda).Where(v => v.VendaId == servicoVenda.VendaId).ToListAsync();
+
+            // Calcular o valor total da venda
+            var valorTotalVenda = listaServicos.Sum(s => s.Venda.ValorTotal);
+
+            // Atualizar o valor total da venda correspondente
+            var venda = await _context.Vendas.FindAsync(servicoVenda.VendaId);
+            venda.ValorTotal = valorTotalVenda;
+
+            // Salvar mudança no banco de dados
+            await _context.SaveChangesAsync();
+
+            ViewData["servicoId"] = servicoVenda.VendaId;
+
+            var lista = _context.ServicoVenda.Where(s => s.VendaId == venda.VendaId).Include(v => v.Venda).ToList().OrderBy(s => s.Venda.NotaFiscal);
+
+            if (lista.Count() == 0)
             {
-                servicoVenda.ServicoVendaId = Guid.NewGuid();
-                _context.Add(servicoVenda);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                var listaVazia = new List<ServicoVenda>();
+                ViewData["listaServicos"] = listaVazia;
             }
-            ViewData["ServicoId"] = new SelectList(_context.Servicos, "ServicoId", "Nome", servicoVenda.ServicoId);
-            ViewData["VendaId"] = new SelectList(_context.Vendas, "VendaId", "VendaId", servicoVenda.VendaId);
-            return View(servicoVenda);
+            else
+            {
+                ViewData["listaServicos"] = lista;
+            }
+
+            return RedirectToAction("Create", "Vendas");
         }
 
         // GET: ServicosVendas/Edit/5
@@ -163,6 +186,12 @@ namespace ProjetoBackend.Controllers
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        public double PrecoServico(Guid id)
+        {
+            var servico = _context.Servicos.Where(p => p.ServicoId == id).FirstOrDefault();
+            return servico.ValorServico;
         }
 
         private bool ServicoVendaExists(Guid id)

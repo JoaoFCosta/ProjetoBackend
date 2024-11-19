@@ -2,62 +2,240 @@
 
 @{
     ViewData["Title"] = "Cadastrar Venda";
+    var idNovaVenda = ViewData["vendaId"];
+    var notaFiscal = ViewData["notaFiscal"];
+    var totalProdutos = 0;
+    var totalServicos = 0;
+    var totalGeral = totalServicos + totalProdutos;
+    List<ItemVenda> listaProdutos = (List<ItemVenda>)ViewData["listaProdutos"];
+    List<ServicoVenda> listaServicos = (List<ServicoVenda>)ViewData["listaServicos"];
 }
+<h1 class="text-center mb-3 display-4">Nova Venda</h1>
+<h1 class="text-center mb-3 display-4">
+    @{
+        @if (notaFiscal != null)
+        {
+            <span>Pedido Nº @notaFiscal</span>
+        }
+    }
+</h1>
 
-<h1>Cadastrar Venda</h1>
 
-<hr />
-<form asp-action="Create">
+<form asp-action="Create" id="venda">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
     <div class="row">
-        <div class="col-12 col-md-6">
+        <div class="col-12">
             <div class="form-group">
-                <label asp-for="ClienteId" class="control-label"></label>
-                <select asp-for="ClienteId" class="form-control" asp-items="ViewBag.ClienteId"></select>
-            </div>
-        </div>
-
-        <div class="col-12 col-md-6">
-            <div class="form-group">
-                <label asp-for="ValorTotal" class="control-label">
-                </label>
-                <input asp-for="ValorTotal" readonly="readonly" value="0.00" class="form-control" />
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-12 col-md-6">
-                <div class="form-group">
-                    <input type="hidden" asp-for="NotaFiscal" class="form-control" />
-                </div>
-            </div>
-
-            <div class="col-12 col-md-6">
-                <div class="form-group">
-                    <input type="hidden" asp-for="DataVenda" class="form-control" />
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-4">
-            <div>
-                <a asp-action="Index" class="btn btn-danger d-flex align-items-baseline align-content-center px-5 mt-3 w-100 justify-content-center py-3">Voltar</a>
-            </div>
-        </div>
-
-        <div class="col-12 col-md-4">
-        </div>
-
-        <div class="col-12 col-md-4">
-            <div class="form-group">
-                <input type="submit" value="Adicionar" class="btn btn-info d-flex align-items-baseline align-content-center px-5 mt-3 w-100 justify-content-center py-3" />
+                <label>Selecione o Cliente</label>
+                <select asp-for="ClienteId" class="form-control" asp-items="ViewBag.ClienteId" onchange="criarVenda()">
+                    <option selected>Selecione o Cliente...</option>
+                </select>
             </div>
         </div>
     </div>
 </form>
 
+@if (idNovaVenda != null)
+{
+    <div class="listaProdutosVenda">
+        <h3>Produtos do Pedido</h3>
+        <form asp-action="AddProduto" method="post" class="mb-3">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" name="VendaId" class="form-control" id="VendaId" value="@idNovaVenda" />
+            <div class="row">
+
+                <div class="col-12 col-md-2">
+                    <div class="form-group">
+                        <label for="Quantidade" class="control-label">Quantidade</label>
+                        <input name="Quantidade" class="form-control" id="Quantidade" />
+                    </div>
+                </div>
+
+                <div class="col-12 col-md">
+                    <div class="form-group">
+                        <label for="ProdutoId" class="control-label">Produto</label>
+                        <select name="ProdutoId" class="form-control" asp-items="ViewBag.ProdutoId" id="produtoId">
+                            <option selected>Selecione o Produto...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-2">
+                    <div class="form-group">
+                        <label for="ValorUnitario" class="control-label">R$ Unitário</label>
+                        <input name="ValorUnitario" class="form-control" id="ValorUnitario" />
+                    </div>
+                </div>
+                <div class="col-12 col-md-2">
+                    <div class="form-group">
+                        <label for="ValorTotal" class="control-label">R$ Total</label>
+                        <input name="ValorTotal" class="form-control" id="ValorTotal" />
+                    </div>
+                </div>
+                <div class="col-12 col-md-3 mt-md-4">
+                    <div class="form-group">
+                        <input type="submit" value="Adicionar" class="btn btn-primary" />
+                    </div>
+                </div>
+            </div>
+        </form>
+
+
+        @if (listaProdutos.Count() > 0)
+        {
+
+            <div id="tabelaProdutos">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover table-bordered border-info">
+                        <thead>
+                            <tr>
+                                <th class="bg-primary text-light">
+                                    Produto
+                                </th>
+                                <th class="bg-primary text-light">
+                                    Quantidade
+                                </th>
+                                <th class="bg-primary text-light">
+                                    Valor Unitário
+                                </th>
+                                <th class="bg-primary text-light">
+                                    Valor Total
+                                </th>
+                                <th class="bg-primary"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            @foreach (var item in listaProdutos)
+                            {
+                                <tr>
+                                    <td>
+                                        @item.Produto.Nome
+                                    </td>
+                                    <td>
+                                        @item.Quantidade
+                                    </td>
+                                    <td>
+                                        @item.ValorUnitario
+                                    </td>
+                                    <td>
+                                        @item.ValorTotal
+                                    </td>
+                                    <td>
+                                        <a asp-action="Delete" asp-route-id="@item.ItemVendaId">Delete</a>
+                                    </td>
+                                </tr>
+
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        }
+    </div>
+
+
+    <div class="listaServicosVenda">
+        <h3>Serviços do Pedido</h3>
+        <form asp-action="AddProduto" method="post" class="mb-3">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" name="VendaIdS" class="form-control" id="VendaIdS" value="@idNovaVenda" />
+            <div class="row">
+
+                <div class="col-12 col-md">
+                    <div class="form-group">
+                        <label for="ServicoId" class="control-label">Servico</label>
+                        <select name="ServicoId" class="form-control" asp-items="ViewBag.ServicoId" id="servicoId">
+                            <option selected>Selecione o Serviço...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-2">
+                    <div class="form-group">
+                        <label for="ValorServico" class="control-label">R$ Total</label>
+                        <input name="ValorServico" class="form-control" id="ValorServico" />
+                    </div>
+                </div>
+                <div class="col-12 col-md-3 mt-md-4">
+                    <div class="form-group">
+                        <input type="submit" value="Adicionar" class="btn btn-primary" />
+                    </div>
+                </div>
+            </div>
+        </form>
+
+
+        @if (listaProdutos.Count() > 0)
+        {
+
+            <div id="tabelaProdutos">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover table-bordered border-info">
+                        <thead>
+                            <tr>
+                                <th class="bg-primary text-light">
+                                    Serviço
+                                </th>
+                                <th class="bg-primary text-light">
+                                    Valor
+                                </th>
+                                <th class="bg-primary"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            @foreach (var item in listaServicos)
+                            {
+                                <tr>
+                                    <td>
+                                        @item.Servico.Nome
+                                    </td>
+                                    <td>
+                                        @item.Servico.ValorServico
+                                    </td>
+                                    <td>
+                                        <a asp-action="Delete" asp-route-id="@item.ServicoVendaId">Delete</a>
+                                    </td>
+                                </tr>
+
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        }
+    </div>
+
+    @if (idNovaVenda != null)
+    {
+        <div class="valorTotal">
+            <h3>Total da Venda</h3>
+            <p>
+                Total de Produtos: R$ <span id="totalProdutos">@listaProdutos.Sum(p => p.ValorTotal)</span><br />
+                Total de Serviços: R$ <span id="totalServicos">@listaServicos.Sum(s => s.Servico.ValorServico)</span><br />
+                <strong>Total Geral: R$ <span id="totalGeral">@totalGeral</span></strong>
+            </p>
+        </div>
+    }
+}
+
+<script>
+    function criarVenda() {
+        document.getElementById("venda").submit();
+    }
+
+    //Calculate and display the total general
+    $(document).ready(function () {
+        var totalProdutos = parseFloat($('#totalProdutos').text().replace('R$ ', ''));
+        var totalServicos = parseFloat($('#totalServicos').text().replace('R$ ', ''));
+        var totalGeral = totalProdutos + totalServicos;
+        $('#totalGeral').text(totalGeral.toFixed(2));
+    });
+</script>
 
 @section Scripts {
     @{

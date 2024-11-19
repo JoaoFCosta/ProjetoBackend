@@ -6,6 +6,39 @@
 
 <h1 class="fw-lighter">Produtos</h1>
 
+@if (Model != null && Model.Any())
+{
+    var produtosComPoucasUnidades = Model.Where(p => p.Estoque < 10);
+
+    if (produtosComPoucasUnidades.Any())
+    {
+        <div class="alert alert-primary" role="alert">
+            <h2>Produtos com Poucas Unidades</h2>
+            <ul>
+                @foreach (var produto in produtosComPoucasUnidades)
+                {
+                    <li>
+                        <strong>Nome:</strong> @produto.Nome<br>
+                        <strong>Quantidade:</strong> @produto.Estoque
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info" role="alert">
+            Nenhum produto com menos de 10 unidades em estoque.
+        </div>
+    }
+}
+else
+{
+    <div class="alert alert-info" role="alert">
+        Nenhum produto encontrado.
+    </div>
+}
+
 <div class="row">
     <div class="col-12 col-md-4">
         <p>

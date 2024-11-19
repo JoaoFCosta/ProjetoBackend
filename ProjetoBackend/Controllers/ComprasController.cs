@@ -27,6 +27,17 @@ namespace ProjetoBackend.Controllers
             return View(await _context.Compras.ToListAsync());
         }
 
+        public async Task<IActionResult> Search(string nome)
+        {
+            if (string.IsNullOrEmpty(nome))
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            var compras = await _context.Compras.ToListAsync();
+            return View("Index", compras.OrderBy(c => c.CompraId));
+        }
+
         // GET: Compras/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
