@@ -28,15 +28,29 @@ namespace ProjetoBackend.Controllers
             return View(produtos.OrderBy(p => p.Nome));
         }
 
+        // GET: Clientes/Search?nome={clientName} (New Search Action)
         public async Task<IActionResult> Search(string nome)
         {
-            if (string.IsNullOrEmpty(nome))
+            if (string.IsNullOrWhiteSpace(nome))
             {
                 return RedirectToAction(nameof(Index));
             }
 
-            var produtos = await _context.Produtos.Where(p => p.Nome.Contains(nome)).ToListAsync();
-            return View("Index", produtos.OrderBy(p => p.Nome));
+            // Remove acentos e converte para minúsculas no termo de pesquisa
+            var nomeNormalizado = nome.RemoverAcentos().ToLower();
+
+            // Recupera todos os produtos do banco
+            var produtos = await _context.Produtos
+                .Include(p => p.Categoria)
+                .ToListAsync();
+
+            // Filtra os produtos na memória removendo acentos e ignorando case
+            var produtosFiltrados = produtos
+                .Where(p => p.Nome.RemoverAcentos().ToLower().Contains(nomeNormalizado))
+                .OrderBy(p => p.Nome)
+                .ToList();
+
+            return View("Index", produtosFiltrados);
         }
 
         // GET: Produtos/Details/5

@@ -53,9 +53,8 @@
                         @Html.DisplayFor(modelItem => item.ValorTotal)
                     </td>
                     <td>
-                        <a asp-action="Edit" asp-route-id="@item.CompraId">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.CompraId">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.CompraId">Delete</a>
+                        <a asp-action="Edit" asp-route-id="@item.CompraId" class="btn btn-info">Editar</a>
+                        <a asp-action="Delete" asp-route-id="@item.CompraId" class="btn btn-danger">Deletar</a>
                     </td>
                 </tr>
             }

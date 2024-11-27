@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +10,6 @@ using ProjetoBackend.Models;
 
 namespace ProjetoBackend.Controllers
 {
-    [Authorize]
     public class ComprasController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -24,18 +22,10 @@ namespace ProjetoBackend.Controllers
         // GET: Compras
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Compras.ToListAsync());
-        }
+            // Inclui os dados dos fornecedores na consulta
+            var compras = await _context.Compras.Include(c => c.Fornecedor).ToListAsync();
 
-        public async Task<IActionResult> Search(string nome)
-        {
-            if (string.IsNullOrEmpty(nome))
-            {
-                return RedirectToAction(nameof(Index));
-            }
-
-            var compras = await _context.Compras.ToListAsync();
-            return View("Index", compras.OrderBy(c => c.CompraId));
+            return View(compras);
         }
 
         // GET: Compras/Details/5
@@ -47,7 +37,8 @@ namespace ProjetoBackend.Controllers
             }
 
             var compra = await _context.Compras
-                .FirstOrDefaultAsync(m => m.CompraId == id);
+                                       .Include(c => c.Fornecedor) // Inclui o fornecedor na busca
+                                       .FirstOrDefaultAsync(m => m.CompraId == id);
             if (compra == null)
             {
                 return NotFound();
@@ -59,12 +50,11 @@ namespace ProjetoBackend.Controllers
         // GET: Compras/Create
         public IActionResult Create()
         {
+            ViewData["FornecedorId"] = new SelectList(_context.Fornecedores, "FornecedorId", "Nome");
             return View();
         }
 
         // POST: Compras/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("CompraId,FornecedorId,DataCompra,ValorTotal")] Compra compra)
@@ -72,10 +62,13 @@ namespace ProjetoBackend.Controllers
             if (ModelState.IsValid)
             {
                 compra.CompraId = Guid.NewGuid();
+                compra.DataCompra = DateTime.Now;
                 _context.Add(compra);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
+            ViewData["FornecedorId"] = new SelectList(_context.Fornecedores, "FornecedorId", "Nome", compra.FornecedorId);
             return View(compra);
         }
 
@@ -92,12 +85,11 @@ namespace ProjetoBackend.Controllers
             {
                 return NotFound();
             }
+            ViewData["FornecedorId"] = new SelectList(_context.Fornecedores, "FornecedorId", "Nome", compra.FornecedorId);
             return View(compra);
         }
 
         // POST: Compras/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, [Bind("CompraId,FornecedorId,DataCompra,ValorTotal")] Compra compra)
@@ -127,6 +119,7 @@ namespace ProjetoBackend.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["FornecedorId"] = new SelectList(_context.Fornecedores, "FornecedorId", "Nome", compra.FornecedorId);
             return View(compra);
         }
 
@@ -139,7 +132,8 @@ namespace ProjetoBackend.Controllers
             }
 
             var compra = await _context.Compras
-                .FirstOrDefaultAsync(m => m.CompraId == id);
+                                       .Include(c => c.Fornecedor) // Inclui o fornecedor na busca
+                                       .FirstOrDefaultAsync(m => m.CompraId == id);
             if (compra == null)
             {
                 return NotFound();

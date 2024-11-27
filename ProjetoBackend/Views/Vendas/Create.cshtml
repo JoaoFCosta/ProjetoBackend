@@ -6,19 +6,72 @@
     var notaFiscal = ViewData["notaFiscal"];
     var totalProdutos = 0;
     var totalServicos = 0;
-    var totalGeral = totalServicos + totalProdutos;
+    var valorTotal = totalServicos + totalProdutos;
+
     List<ItemVenda> listaProdutos = (List<ItemVenda>)ViewData["listaProdutos"];
     List<ServicoVenda> listaServicos = (List<ServicoVenda>)ViewData["listaServicos"];
 }
-<h1 class="text-center mb-3 display-4">Nova Venda</h1>
-<h1 class="text-center mb-3 display-4">
-    @{
-        @if (notaFiscal != null)
+<div class="row">
+    <div class="col-6">
+        <h1 class=" mb-3 display-5">
+            Nova Venda
+            @if (notaFiscal != null)
+            {
+                <span> # @notaFiscal</span>
+            }
+        </h1>
+    </div>
+
+    <div class="col">
+        <h1 class=" mb-3 display-5">
+            Total da Venda: R$
+            @if (idNovaVenda != null)
+            {
+
+                var p = listaProdutos.Sum(p => p.ValorTotal);
+                var s = listaServicos.Sum(s => s.Servico.ValorServico);
+                var t = p + s;
+                <span>@t</span>
+
+            }
+            else
+            {
+                <span>0,00</span>
+            }
+
+        </h1>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-12 col-lg">
+        @if (idNovaVenda != null)
         {
-            <span>Pedido Nº @notaFiscal</span>
+            <form asp-action="FinalizarVenda" method="post">
+                <input type="hidden" name="TotalP" value="@listaProdutos.Sum(p => p.ValorTotal)" />
+                <input type="hidden" name="TotalS" value="@listaServicos.Sum(s => s.Servico.ValorServico)" />
+                <input type="hidden" name="VendaIdTotal" class="form-control" id="" value="@idNovaVenda" />
+                <button type="submit" class="btn btn-primary">Finalizar Venda</button>
+            </form>
         }
-    }
-</h1>
+    </div>
+
+    <div class="col-12 col-lg">
+        <h1 class="lead">
+            @if (idNovaVenda != null)
+            {
+                <span id="totalProdutos">
+                    Total de Produtos: R$ @listaProdutos.Sum(p => p.ValorTotal)
+                </span>
+                <span id="totalServicos">
+                    Total de Serviços: R$ @listaServicos.Sum(s => s.Servico.ValorServico)
+                </span>
+            }
+        </h1>
+    </div>
+
+</div>
+
 
 
 <form asp-action="Create" id="venda">
@@ -70,6 +123,7 @@
                 <div class="col-12 col-md-2">
                     <div class="form-group">
                         <label for="ValorTotal" class="control-label">R$ Total</label>
+
                         <input name="ValorTotal" class="form-control" id="ValorTotal" />
                     </div>
                 </div>
@@ -102,7 +156,6 @@
                                 <th class="bg-primary text-light">
                                     Valor Total
                                 </th>
-                                <th class="bg-primary"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -121,9 +174,6 @@
                                     </td>
                                     <td>
                                         @item.ValorTotal
-                                    </td>
-                                    <td>
-                                        <a asp-action="Delete" asp-route-id="@item.ItemVendaId">Delete</a>
                                     </td>
                                 </tr>
 
@@ -182,7 +232,6 @@
                                 <th class="bg-primary text-light">
                                     Valor
                                 </th>
-                                <th class="bg-primary"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -196,11 +245,7 @@
                                     <td>
                                         @item.Servico.ValorServico
                                     </td>
-                                    <td>
-                                        <a asp-action="Delete" asp-route-id="@item.ServicoVendaId">Delete</a>
-                                    </td>
                                 </tr>
-
                             }
                         </tbody>
                     </table>
@@ -210,31 +255,29 @@
         }
     </div>
 
-    @if (idNovaVenda != null)
-    {
-        <div class="valorTotal">
-            <h3>Total da Venda</h3>
-            <p>
-                Total de Produtos: R$ <span id="totalProdutos">@listaProdutos.Sum(p => p.ValorTotal)</span><br />
-                Total de Serviços: R$ <span id="totalServicos">@listaServicos.Sum(s => s.Servico.ValorServico)</span><br />
-                <strong>Total Geral: R$ <span id="totalGeral">@totalGeral</span></strong>
-            </p>
-        </div>
-    }
 }
+
+
 
 <script>
     function criarVenda() {
         document.getElementById("venda").submit();
     }
 
-    //Calculate and display the total general
-    $(document).ready(function () {
-        var totalProdutos = parseFloat($('#totalProdutos').text().replace('R$ ', ''));
-        var totalServicos = parseFloat($('#totalServicos').text().replace('R$ ', ''));
-        var totalGeral = totalProdutos + totalServicos;
-        $('#totalGeral').text(totalGeral.toFixed(2));
-    });
+    // Declarando constantes para armazenar os elementos HTML
+    const totalProdutosElement = document.getElementById('totalProdutos');
+    const totalServicosElement = document.getElementById('totalServicos');
+    const resultadoElement = document.getElementById('resultado');
+
+    // Obtendo o texto dos elementos, convertendo para números de ponto flutuante e armazenando em variáveis
+    const totalProdutos = parseFloat(totalProdutosElement.textContent);
+    const totalServicos = parseFloat(totalServicosElement.textContent);
+
+    // Calculando o valor total somando os valores dos produtos e serviços
+    const valorTotal = totalProdutos + totalServicos;
+
+    // Atualizando o conteúdo do elemento HTML com o resultado formatado com duas casas decimais
+    resultadoElement.textContent = valorTotal.toFixed(2);
 </script>
 
 @section Scripts {

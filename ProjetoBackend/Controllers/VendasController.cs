@@ -253,6 +253,8 @@ namespace ProjetoBackend.Controllers
                     ViewData["listaServicos"] = lista2;
                 }
 
+
+
                 return View("Create", venda);
 
             }
@@ -318,42 +320,24 @@ namespace ProjetoBackend.Controllers
         }
 
 
-        /*
-                [HttpPost, ActionName("AddServico")]
-                [Validate=AntiForgeryToken]
-                =
-        +++public async Task<IActionResult> AddServico([Bind("ServicoVendaId, VendaId, ValorTotal")] ServicoVenda servicoVenda)
-                {
-                    servicoVenda.ServicoId = Guid.NewGuid();
-                    _context.Add(servicoVenda);
-                    await _context.SaveChangesAsync();
+        [HttpPost, ActionName("FinalizarVenda")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> FinalizarVenda(Guid? VendaIdTotal, double? TotalS, double? TotalP)
+        {
+            var venda = await _context.Vendas.Where(v => v.VendaId == VendaIdTotal).FirstAsync();
+            if (venda == null)
+            {
+                return NotFound("Venda não encontrada");
+            }
 
-                    var listaServicos = await _context.ServicoVenda.Include(s => s.Servico.ServicoId).Include(s => s.Venda).Where(v => v.VendaId == servicoVenda.VendaId).ToListAsync();
+            venda.ValorTotal = TotalS + TotalP;
 
-                    var valorTotalVenda = listaServicos.Sum(s => s.Venda.ValorTotal);
+            _context.Vendas.Update(venda);
+            await _context.SaveChangesAsync();
+            var applicationDbContext = _context.Vendas.Include(v => v.Cliente);
+            return View("Index", await applicationDbContext.OrderBy(v => v.NotaFiscal).ToListAsync());
+        }
 
-                    var venda = await _context.Vendas.FindAsync(servicoVenda.VendaId);
-                    venda.ValorTotal = valorTotalVenda;
-
-                    await _context.SaveChangesAsync();
-
-                    ViewData["servicoId"] = servicoVenda.VendaId;
-
-                    var lista = _context.ServicoVenda.Where(s => s.VendaId == venda.VendaId).Include(v => v.Venda).ToList().OrderBy(s => s.Venda.NotaFiscal);
-
-                    if (lista.Count() == 0)
-                    {
-                        var listaVazia = new List<ServicoVenda>();
-                        ViewData["listaServicos"] = listaVazia;
-                    }
-                    else
-                    {
-                        ViewData["listaServicos"] = lista;
-                    }
-
-                    return RedirectToAction("Create", venda);
-                }
-        */
 
         private bool VendaExists(Guid id)
         {
